@@ -9,12 +9,12 @@ public class Accounting {
     private int attempts;
 
     public Accounting() {
-        client = new Client("192.168.43.220", 3367);
+        client = new Client("10.6.12.137", 3367);
         attempts = 3;
     }
 
     public SceneEnum cardValidator(String cardNumber) {
-        long number = -1;
+        long number;
         if (cardNumber.length() != 16) {
             new PopUpWindow("Too short card number. Required 16 numbers.");
             return SceneEnum.CARD;
@@ -39,23 +39,23 @@ public class Accounting {
     }
 
     private boolean checkNumber(long cardNumber) {
-        int sum = calculateSum(cardNumber);
+        int sum = calculateSum(cardNumber / 10);
         long last = cardNumber % 10;
         sum = sum % 10;
-        return ((10 - sum) % 10 == (int)last);
+        return ((10 - sum) % 10 == (int) last);
     }
 
     private int calculateSum(long cardNumber) {
         int sum = 0;
         boolean isOdd = true;
-        while(cardNumber > 0) {
+        while (cardNumber > 0) {
             if (isOdd) {
-                int tmp = (int)(cardNumber % 10) * 2;
+                int tmp = (int) (cardNumber % 10) * 2;
                 sum += (tmp < 10) ? tmp : (tmp / 10) + (tmp % 10);
                 isOdd = false;
                 cardNumber /= 10;
             } else {
-                sum += (int)(cardNumber % 10);
+                sum += (int) (cardNumber % 10);
                 isOdd = true;
                 cardNumber /= 10;
             }
@@ -87,5 +87,58 @@ public class Accounting {
             }
         }
         return SceneEnum.PIN;
+    }
+
+    public String getBalance() {
+        return client.sendAndReceiveRequest(Request.BALANCE);
+    }
+
+    public SceneEnum deposit(String depot) {
+        try {
+            int deposit = Integer.parseInt(depot);
+            if (deposit % 10 == 0 && (deposit >= 40 || deposit == 20)) {
+                client.sendAndReceiveRequest(Request.DEPOSIT, Integer.toString(deposit));
+                new PopUpWindow("Balance added");
+                return SceneEnum.MENU;
+            } else {
+                new PopUpWindow("Enter money to deposit. Only available multiplication of 20, 50, 100.");
+                return SceneEnum.DEPOSIT;
+            }
+        } catch (NumberFormatException ex) {
+            new PopUpWindow("Enter valid value.");
+            return SceneEnum.DEPOSIT;
+        }
+    }
+
+    public SceneEnum withdraw(String depot) {
+        try {
+            int deposit = Integer.parseInt(depot);
+            if (deposit % 10 == 0 && (deposit >= 40 || deposit == 20)) {
+                double balance = Double.parseDouble(getBalance());
+                if (balance > deposit) {
+                    client.sendAndReceiveRequest(Request.WITHDRAW, Integer.toString(deposit));
+                    new PopUpWindow("Money withdrawn.");
+                    return SceneEnum.MENU;
+                } else {
+                    new PopUpWindow("Not enough funds.");
+                    return SceneEnum.WITHDRAW;
+                }
+            } else {
+                new PopUpWindow("Enter money to withdraw. Only available multiplication of 20, 50, 100.");
+                return SceneEnum.WITHDRAW;
+            }
+        } catch (NumberFormatException ex) {
+            new PopUpWindow("Enter valid value.");
+            return SceneEnum.WITHDRAW;
+        }
+    }
+
+    public void close() {
+        client.closeConnection();
+    }
+
+    public void shutdown() {
+        client.sendAndReceiveRequest(Request.SHUTDOWN);
+        close();
     }
 }

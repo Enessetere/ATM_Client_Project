@@ -5,5 +5,6 @@ public enum Request {
     BALANCE,
     WITHDRAW,
     DEPOSIT,
-    PIN
+    PIN,
+    SHUTDOWN
 }

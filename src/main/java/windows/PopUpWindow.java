@@ -22,13 +22,13 @@ public class PopUpWindow {
         label.setLayoutY(20);
         label.setLayoutX(5);
         Button resumeWindowButton = new Button("OK");
-        resumeWindowButton.setLayoutX(80);
-        resumeWindowButton.setLayoutY(50);
+        resumeWindowButton.setLayoutX(150);
+        resumeWindowButton.setLayoutY(100);
         resumeWindowButton.setPrefSize(100, 30);
         resumeWindowButton.setOnAction(actionEvent -> this.stage.close());
         pane.getChildren().add(label);
         pane.getChildren().add(resumeWindowButton);
-        Scene scene = new Scene(pane, 260, 100);
+        Scene scene = new Scene(pane, 400, 150);
         stage.setScene(scene);
         stage.setTitle("ATM Customer App - ERROR");
         show();
