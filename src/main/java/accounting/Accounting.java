@@ -15,8 +15,12 @@ public class Accounting {
 
     public SceneEnum cardValidator(String cardNumber) {
         long number;
-        if (cardNumber.length() != 16) {
+        if (cardNumber.length() < 16) {
             new PopUpWindow("Too short card number. Required 16 numbers.");
+            return SceneEnum.CARD;
+        }
+        if (cardNumber.length() > 16) {
+            new PopUpWindow("Too long card number. Required 16 numbers.");
             return SceneEnum.CARD;
         }
         try {
